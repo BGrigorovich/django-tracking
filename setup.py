@@ -17,7 +17,7 @@ setup(
     description="Basic visitor tracking and blacklisting for Django",
     long_description=README,
     keywords='django, tracking, visitors',
-    url='http://github.com/bashu/django-tracking/',
+    url='http://github.com/NazarTopolsky/django-tracking/',
     author='Josh VanderLinden',
     author_email='codekoala@gmail.com',
     maintainer='Basil Shubin',

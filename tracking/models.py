@@ -3,7 +3,10 @@ from django.utils import timezone
 import logging
 import traceback
 
-from django.contrib.gis.geoip import GeoIP, GeoIPException
+try:
+    from django.contrib.gis.geoip import GeoIP, GeoIPException, HAS_GEOIP
+except ImportError:
+    HAS_GEOIP = False
 try:
     from django.conf import settings
     User = settings.AUTH_USER_MODEL
@@ -19,6 +22,7 @@ CACHE_TYPE = getattr(settings, 'GEOIP_CACHE_TYPE', 4)
 
 log = logging.getLogger('tracking.models')
 
+
 class VisitorManager(models.Manager):
     def active(self, timeout=None):
         """
@@ -32,6 +36,7 @@ class VisitorManager(models.Manager):
         cutoff = now - timedelta(minutes=timeout)
 
         return self.get_queryset().filter(last_update__gte=cutoff)
+
 
 class Visitor(models.Model):
     session_key = models.CharField(max_length=40)
@@ -105,19 +110,23 @@ class Visitor(models.Model):
         return clean
 
     geoip_data_json = property(_get_geoip_data_json)
+
     def __unicode__(self):
         return u'{0} at {1} '.format(
-        self.user.username,
-        self.ip_address
-    )
-
+            self.user.username,
+            self.ip_address
+        )
 
     class Meta:
         ordering = ('-last_update',)
         unique_together = ('session_key', 'ip_address',)
 
+
 class UntrackedUserAgent(models.Model):
-    keyword = models.CharField(_('keyword'), max_length=100, help_text=_('Part or all of a user-agent string.  For example, "Googlebot" here will be found in "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)" and that visitor will not be tracked.'))
+    keyword = models.CharField(
+        _('keyword'), max_length=100,
+        help_text=_('Part or all of a user-agent string.  For example, "Googlebot" here will be found in "Mozilla/5.0'
+                    ' (compatible; Googlebot/2.1; +http://www.google.com/bot.html)" and that visitor will not be tracked.'))
 
     def __unicode__(self):
         return self.keyword
@@ -126,6 +135,7 @@ class UntrackedUserAgent(models.Model):
         ordering = ('keyword',)
         verbose_name = _('Untracked User-Agent')
         verbose_name_plural = _('Untracked User-Agents')
+
 
 class BannedIP(models.Model):
     ip_address = models.GenericIPAddressField('IP Address', help_text=_('The IP address that should be banned'))
