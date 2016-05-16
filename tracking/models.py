@@ -1,17 +1,21 @@
 from datetime import timedelta
+from django.conf import settings
 from django.utils import timezone
 import logging
 import traceback
 
 try:
     from django.contrib.gis.geoip import GeoIP, GeoIPException, HAS_GEOIP
-except ImportError:
-    HAS_GEOIP = False
+except Exception as e:  # We couldn't import GEOIP lib
+    if getattr(settings, 'TRACKING_USE_GEOIP', False):
+        # if we should use it, re-raise
+        raise e
+    else:
+        # otherwise - fail silently
+        HAS_GEOIP = False
 try:
-    from django.conf import settings
     User = settings.AUTH_USER_MODEL
 except AttributeError:
-    from django.conf import settings
     from django.contrib.auth.models import User
 from django.db import models
 from django.utils.translation import ugettext, ugettext_lazy as _
