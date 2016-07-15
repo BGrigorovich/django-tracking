@@ -1,5 +1,6 @@
 from django.contrib import admin
-from tracking.models import Visitor, VisitorManager, BannedIP, UntrackedUserAgent
+from tracking.models import Visitor, BannedIP, UntrackedUserAgent
+
 
 class VisitorAdmin(admin.ModelAdmin):
     search_fields = ['username']
