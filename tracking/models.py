@@ -117,7 +117,7 @@ class Visitor(models.Model):
 
     def __unicode__(self):
         return u'{0} at {1} '.format(
-            self.user.username,
+            self.user and self.user.username or None,
             self.ip_address
         )
 
