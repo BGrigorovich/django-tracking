@@ -8,17 +8,18 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import render_to_response
 from django.template import RequestContext, Context, loader
 try:
-    from json import JSONEncoder #Python 2.6
+    from json import JSONEncoder  # Python 2.6
 except ImportError:
-    from django.utils.simplejson import JSONEncoder #Older Django
+    from django.utils.simplejson import JSONEncoder  # Older Django
 from django.utils.translation import ungettext
 from django.views.decorators.cache import never_cache
-from tracking.models import Visitor
-from tracking.utils import u_clean as uc
+from .models import Visitor
+from .utils import u_clean as uc
 
 DEFAULT_TRACKING_TEMPLATE = getattr(settings, 'DEFAULT_TRACKING_TEMPLATE',
                                     'tracking/visitor_map.html')
 log = logging.getLogger('tracking.views')
+
 
 def update_active_users(request):
     """
@@ -45,6 +46,7 @@ def update_active_users(request):
     # if the request was not made via AJAX, raise a 404
     raise Http404
 
+
 @never_cache
 def get_active_users(request):
     """
@@ -59,7 +61,7 @@ def get_active_users(request):
         try:
             data = {'users': [{
                     'id': v.id,
-                    #'user': uc(v.user),
+                    # 'user': uc(v.user),
                     'user_agent': uc(v.user_agent),
                     'referrer': uc(v.referrer),
                     'url': uc(v.url),
@@ -81,36 +83,38 @@ def get_active_users(request):
     # if the request was not made via AJAX, raise a 404
     raise Http404
 
+
 def friendly_time(last_update):
     minutes = last_update / 60
     seconds = last_update % 60
 
-    friendly_time = []
+    friendly_time_list = []
     if minutes > 0:
-        friendly_time.append(ungettext(
+        friendly_time_list.append(ungettext(
                 '%(minutes)i minute',
                 '%(minutes)i minutes',
                 minutes
-        ) % {'minutes': minutes })
+        ) % {'minutes': minutes})
     if seconds > 0:
-        friendly_time.append(ungettext(
+        friendly_time_list.append(ungettext(
                 '%(seconds)i second',
                 '%(seconds)i seconds',
                 seconds
-        ) % {'seconds': seconds })
+        ) % {'seconds': seconds})
 
-    return friendly_time or 0
+    return friendly_time_list or 0
+
 
 def display_map(request, template_name=DEFAULT_TRACKING_TEMPLATE,
-        extends_template='base.html'):
+                extends_template='base.html'):
     """
     Displays a map of recently active users.  Requires a Google Maps API key
     and GeoIP in order to be most effective.
     """
 
-    GOOGLE_MAPS_KEY = getattr(settings, 'GOOGLE_MAPS_KEY', None)
+    google_maps_key = getattr(settings, 'GOOGLE_MAPS_KEY', None)
 
     return render_to_response(template_name,
-                              {'GOOGLE_MAPS_KEY': GOOGLE_MAPS_KEY,
+                              {'GOOGLE_MAPS_KEY': google_maps_key,
                                'template': extends_template},
                               context_instance=RequestContext(request))

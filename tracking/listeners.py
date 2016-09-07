@@ -2,20 +2,19 @@ import logging
 
 log = logging.getLogger('tracking.listeners')
 
-importing_exceptions = (ImportError, )
-#Try to have the ImproperlyConfigured error available to catch that error during package installation
-#...looks like newer versions of Django might have broken only receiving an ImportError 
+# Try to have the ImproperlyConfigured error available to catch that error during package installation
+# ...looks like newer versions of Django might have broken only receiving an ImportError
 try:
     from django.core.exceptions import ImproperlyConfigured
     importing_exceptions = (ImportError, ImproperlyConfigured)
-except ImportError: 
-    pass
+except ImportError:
+    importing_exceptions = (ImportError, )
 
 try:
     from django.core.cache import cache
     from django.db.models.signals import post_save, post_delete
 
-    from tracking.models import UntrackedUserAgent, BannedIP
+    from .models import UntrackedUserAgent, BannedIP
 except importing_exceptions:
     pass
 else:
@@ -25,8 +24,8 @@ else:
 
         log.debug('Updating untracked user agents cache')
         cache.set('_tracking_untracked_uas',
-            UntrackedUserAgent.objects.all(),
-            3600)
+                  UntrackedUserAgent.objects.all(),
+                  3600)
 
     def refresh_banned_ips(sender, instance, created=False, **kwargs):
         """Updates the cache of banned IP addresses"""

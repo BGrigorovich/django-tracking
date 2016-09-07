@@ -1,5 +1,5 @@
 from django import template
-from tracking.models import Visitor
+from ..models import Visitor
 
 register = template.Library()
 

@@ -12,8 +12,8 @@ from django.db.utils import DatabaseError, IntegrityError
 from django.http import Http404
 from django.db import transaction
 
-from tracking import utils
-from tracking.models import Visitor, UntrackedUserAgent, BannedIP
+from . import utils
+from .models import Visitor, UntrackedUserAgent, BannedIP
 
 title_re = re.compile('<title>(.*?)</title>')
 log = logging.getLogger('tracking.middleware')
@@ -151,6 +151,7 @@ class VisitorTrackingMiddleware(object):
         except DatabaseError:
             log.error('There was a problem saving visitor information:\n%s\n\n%s' % (traceback.format_exc(), locals()))
 
+
 class VisitorCleanUpMiddleware:
     """Clean up old visitor tracking records in the database"""
 
@@ -161,6 +162,7 @@ class VisitorCleanUpMiddleware:
             log.debug('Cleaning up visitors older than %s hours' % timeout)
             timeout = timezone.localtime(timezone.now()) - timedelta(hours=int(timeout))
             Visitor.objects.filter(last_update__lte=timeout).delete()
+
 
 class BannedIPMiddleware:
     """

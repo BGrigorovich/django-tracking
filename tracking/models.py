@@ -19,7 +19,7 @@ except AttributeError:
     from django.contrib.auth.models import User
 from django.db import models
 from django.utils.translation import ugettext, ugettext_lazy as _
-from tracking import utils
+from . import utils
 
 USE_GEOIP = getattr(settings, 'TRACKING_USE_GEOIP', False)
 CACHE_TYPE = getattr(settings, 'GEOIP_CACHE_TYPE', 4)
@@ -107,9 +107,10 @@ class Visitor(models.Model):
         JSON encoding.
         """
         clean = {}
-        if not self.geoip_data: return {}
+        if not self.geoip_data:
+            return {}
 
-        for key,value in self.geoip_data.items():
+        for key, value in self.geoip_data.items():
             clean[key] = utils.u_clean(value)
         return clean
 

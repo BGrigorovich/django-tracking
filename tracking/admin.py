@@ -1,5 +1,5 @@
 from django.contrib import admin
-from tracking.models import Visitor, BannedIP, UntrackedUserAgent
+from .models import Visitor, BannedIP, UntrackedUserAgent
 
 
 class VisitorAdmin(admin.ModelAdmin):
