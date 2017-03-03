@@ -45,11 +45,12 @@ class VisitorManager(models.Manager):
 class Visitor(models.Model):
     session_key = models.CharField(max_length=40)
     ip_address = models.CharField(max_length=20)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
     user_agent = models.CharField(max_length=255)
     referrer = models.CharField(max_length=255)
     url = models.CharField(max_length=255)
     page_views = models.PositiveIntegerField(default=0)
+    email = models.CharField(max_length=254, default=u'')
     session_start = models.DateTimeField()
     last_update = models.DateTimeField()
 
@@ -57,6 +58,8 @@ class Visitor(models.Model):
 
     def __init__(self, *args, **kwargs):
         super(Visitor, self).__init__(*args, **kwargs)
+        if self.user and not self.email:
+            self.email = self.user.email
         self.session_start = timezone.now()
         self.last_update = timezone.now()
 
