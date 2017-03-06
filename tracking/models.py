@@ -58,7 +58,7 @@ class Visitor(models.Model):
 
     def __init__(self, *args, **kwargs):
         super(Visitor, self).__init__(*args, **kwargs)
-        if self.user and not self.email:
+        if not self.email and self.user:
             self.email = self.user.email
         self.session_start = timezone.now()
         self.last_update = timezone.now()
