@@ -5,7 +5,7 @@ import logging
 import traceback
 
 try:
-    from django.contrib.gis.geoip import GeoIP, GeoIPException, HAS_GEOIP
+    from django.contrib.gis.geoip2 import GeoIP2, GeoIP2Exception, HAS_GEOIP2
 except Exception as e:  # We couldn't import GEOIP lib
     if getattr(settings, 'TRACKING_USE_GEOIP', False):
         # if we should use it, re-raise
@@ -94,9 +94,9 @@ class Visitor(models.Model):
         if not hasattr(self, '_geoip_data'):
             self._geoip_data = None
             try:
-                gip = GeoIP(cache=CACHE_TYPE)
+                gip = GeoIP2(cache=CACHE_TYPE)
                 self._geoip_data = gip.city(self.ip_address)
-            except GeoIPException:
+            except GeoIP2Exception:
                 # don't even bother...
                 log.error('Error getting GeoIP data for IP "%s": %s' % (self.ip_address, traceback.format_exc()))
 
