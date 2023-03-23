@@ -11,6 +11,7 @@ from django.urls import reverse, NoReverseMatch
 from django.db.utils import DatabaseError, IntegrityError
 from django.http import Http404
 from django.db import transaction
+from django.utils.deprecation import MiddlewareMixin
 
 from . import utils
 from .models import Visitor, UntrackedUserAgent, BannedIP
@@ -19,7 +20,7 @@ title_re = re.compile('<title>(.*?)</title>')
 log = logging.getLogger('tracking.middleware')
 
 
-class VisitorTrackingMiddleware(object):
+class VisitorTrackingMiddleware(MiddlewareMixin):
     """
     Keeps track of your active users.  Anytime a visitor accesses a valid URL,
     their unique record will be updated with the page they're on and the last
@@ -152,7 +153,7 @@ class VisitorTrackingMiddleware(object):
             log.error('There was a problem saving visitor information:\n%s\n\n%s' % (traceback.format_exc(), locals()))
 
 
-class VisitorCleanUpMiddleware:
+class VisitorCleanUpMiddleware(MiddlewareMixin):
     """Clean up old visitor tracking records in the database"""
 
     def process_request(self, request):
@@ -164,7 +165,7 @@ class VisitorCleanUpMiddleware:
             Visitor.objects.filter(last_update__lte=timeout).delete()
 
 
-class BannedIPMiddleware:
+class BannedIPMiddleware(MiddlewareMixin):
     """
     Raises an Http404 error for any page request from a banned IP.  IP addresses
     may be added to the list of banned IPs via the Django admin.
